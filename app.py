@@ -64,3 +64,9 @@ if st.button("🔮 Predict Diagnosis"):
     scaled_df = pd.DataFrame(scaling_features(input_df), columns=best_features)
     prediction = model.predict(scaled_df)[0]
     st.success(f"Estimated diagnosis: **{prediction}**")
+
+    if hasattr(model, "predict_proba"):
+        proba = model.predict_proba(scaled_df)[0]
+        class_index = list(model.classes_).index(prediction)
+        confidence = proba[class_index]
+        st.info(f"Confidence of this prediction: **{confidence:.2%}**")
