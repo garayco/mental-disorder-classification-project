@@ -20,7 +20,7 @@ best_features = [
 
 # Categorize features
 yes_no_features = {"mood_swing_YES", "suicidal_thoughts_YES", "anorxia_YES", "nervous_break_down_YES"}
-range_0_3 = {"sadness", "euphoric", "exhausted", "sleep_dissorder"}
+range_1_4 = {"sadness", "euphoric", "exhausted", "sleep_dissorder"}
 
 # Display title
 st.title("🧠 Clinical Symptoms Evaluation")
@@ -38,16 +38,16 @@ for i, feature in enumerate(yes_no_features):
         label = feature.replace('_YES', '').replace('_', ' ').capitalize()
         user_input[feature] = st.selectbox(f"{label}?", ["No", "Yes"]) == "Yes"
 
-st.markdown("### Severity (0 to 3)")
+st.markdown("### Severity (1 to 4)")
 cols = st.columns(2)
-for i, feature in enumerate(range_0_3):
+for i, feature in enumerate(range_1_4):
     with cols[i % 2]:
         label = feature.replace('_', ' ').capitalize()
-        user_input[feature] = st.slider(f"{label}", 0, 3, 1)
+        user_input[feature] = st.slider(f"{label}", 1, 4, 2)
 
 st.markdown("### Intensity (1 to 10)")
 cols = st.columns(2)
-for i, feature in enumerate(f for f in best_features if f not in yes_no_features and f not in range_0_3):
+for i, feature in enumerate(f for f in best_features if f not in yes_no_features and f not in range_1_4):
     with cols[i % 2]:
         label = feature.replace('_', ' ').capitalize()
         user_input[feature] = st.slider(f"{label}", 1, 10, 5)
@@ -59,18 +59,8 @@ def scaling_features(input_data):
 import pandas as pd
 
 if st.button("🔮 Predict Diagnosis"):
-    mapped_input = []
-    for f in best_features:
-        val = int(user_input[f])
-        if f in range_0_3:
-            mapped_input.append(val + 1)
-        else:
-            mapped_input.append(val)
-            
-    input_df = pd.DataFrame([mapped_input], columns=best_features)
-    
-    scaled_df = pd.DataFrame(scaling_features(input_df), columns=best_features) 
-
+    input_values = [int(user_input[f]) for f in best_features]
+    input_df = pd.DataFrame([input_values], columns=best_features)
+    scaled_df = pd.DataFrame(scaling_features(input_df), columns=best_features)
     prediction = model.predict(scaled_df)[0]
     st.success(f"Estimated diagnosis: **{prediction}**")
-
